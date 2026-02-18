@@ -1,0 +1,15 @@
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+
+networking:
+  podSubnet: "10.242.0.0/16"
+  serviceSubnet: "10.98.0.0/16"
+
+nodes:
+- role: control-plane
+  image: kindest/node:v1.29.2
+  extraPortMappings:
+  - containerPort: 32001    # will match mesh-gateway Service nodePort later
+    hostPort: 15002         # dc2 host-facing port
+    listenAddress: "0.0.0.0"
+    protocol: TCP
