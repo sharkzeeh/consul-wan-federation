@@ -22,7 +22,7 @@ helm install consul hashicorp/consul --namespace consul --create-namespace -f he
 # helm upgrade --install consul hashicorp/consul --namespace consul --create-namespace -f helm/values-dc1.yaml --version "1.9.3"
 ```
 
-- export consul federation secret from the primary consul dc (dc1)
+- export consul federation secret from the first consul k8s cluster (primary consul dc - ***dc1***)
 ```sh
 kubectl --context dc1 -n consul get secret consul-federation
 # NAME                TYPE     DATA   AGE
@@ -31,7 +31,7 @@ kubectl --context dc1 -n consul get secret consul-federation
 kubectl --context dc1 -n consul get secret consul-federation -o yaml > consul-federation.yaml
 ```
 
-- apply cluster federation secret and install consul in the second k8s cluster (secondary consul dc - `dc2`)
+- apply cluster federation secret and install consul in the second k8s cluster (secondary consul dc - ***dc2***)
 ```sh
 kubectl config use-context dc2
 
@@ -43,8 +43,6 @@ kubectl --context dc2 -n consul apply -f consul-federation.yaml
 helm install consul hashicorp/consul --namespace consul --create-namespace -f helm/values-dc2.yaml --version "1.9.3"
 # helm upgrade --install consul hashicorp/consul --namespace consul --create-namespace -f helm/values-dc2.yaml --version "1.9.3"
 ```
-
-- apply
 
 ---
 
