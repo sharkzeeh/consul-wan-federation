@@ -18,7 +18,9 @@ kubectl -n consul run -it --rm curl --image=curlimages/curl -- sh
 - from secondary cluster check `MeshGateway.Mode`
 ```sh
 kubectl --context dc2 -n consul exec statefulset/consul-server --namespace consul -- consul config read -kind proxy-defaults -name global
-Defaulted container "consul" out of: consul, locality-init (init)
+```
+
+```json
 {
     "Kind": "proxy-defaults",
     "Name": "global",
