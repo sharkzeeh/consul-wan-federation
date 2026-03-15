@@ -19,7 +19,7 @@ Move-Item .\kind-windows-amd64.exe "$env:USERPROFILE\kind.exe"
 
 - test
 ```
-C:\Users\robez>kind
+C:\> kind
 kind creates and manages local Kubernetes clusters using Docker container 'nodes'
 
 Usage:
