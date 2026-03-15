@@ -36,3 +36,9 @@ Defaulted container "consul" out of: consul, locality-init (init)
     "ModifyIndex": 1257
 }
 ```
+
+## Pod annotations
+
+Links:
+- [Consul Service Mesh annotations](https://developer.hashicorp.com/consul/docs/reference/k8s/annotation-label?page=k8s&page=annotations-and-labels#annotations)
+- [Consul Service Sync annotations](https://developer.hashicorp.com/consul/docs/register/service/k8s/service-sync#service-name)
