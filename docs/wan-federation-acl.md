@@ -68,7 +68,7 @@ consul-server-0.dc2  10.242.0.33:8302  alive   server  1.22.2  2         dc2  de
 
 - verify Service Resolver upstream (call service in dc2 from a client pod in dc1)
 ```sh
-kubectl --context dc1 -n default exec -c client deploy/client -- curl -s localhost:1234
+kubectl --context dc1 -n default exec deploy/client -c client -- curl -s localhost:1234
 hello-from-dc2
 ```
 
@@ -134,3 +134,94 @@ Roles:
 ```
 
 - the same token is applicable in secondary datacenters (dc2, etc.)
+
+### Check service accounts for deployments
+
+If your applications that are connected to Consul Service Mesh (`consul.hashicorp.com/connect-inject: "true"`) fail to start with the following log (pod `consul-connect-inject-init`)
+```sh
+2026-03-15T12:01:11.911Z [INFO]  consul-server-connection-manager: discovered Consul servers: addresses=[10.241.0.10:8502]
+2026-03-15T12:01:11.911Z [INFO]  consul-server-connection-manager: current prioritized list of known Consul servers: addresses=[10.241.0.10:8502]
+2026-03-15T12:01:11.916Z [ERROR] consul-server-connection-manager: ACL auth method login failed: error="rpc error: code = PermissionDenied desc = Permission denied"
+2026-03-15T12:01:11.916Z [ERROR] consul-server-connection-manager: connection error: error="rpc error: code = PermissionDenied desc = Permission denied"
+```
+
+In a non-ACL mode, it is not required to run a delployment under a specific service account.
+However, if you turn on ACLs then you need to create additional service accounts, e.g.:
+
+- service account
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: client
+```
+
+- deployment
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: client
+spec:
+  ...
+  selector:
+    matchLabels:
+      app: client
+  template:
+    ...
+    spec:
+      serviceAccountName: client # <--- use specific service account
+```
+
+### Check mesh default intention policy and list intentions
+```sh
+# consul intention check <source> <target>
+$ consul intention check netshoot echo
+Denied
+```
+
+If it is denied then you need to create specific `ServiceIntetions` objects.
+
+- list service-intentions config entries
+```sh
+consul config list -kind service-intentions
+```
+
+- list intentions
+```sh
+$ consul intention list
+```
+
+- test if one service A can contact service B: if it says `Denied` then you need to create `ServiceIntentions` objects
+```sh
+$ consul intention check source-a service-b
+Denied
+```
+
+### Create service intentions
+
+- let *netshoot* service (dc2) and *client* service (dc1) reach *echo* service (dc2)
+```sh
+kubectl --context dc2 -n default apply -f intentions/dc2-allow-netshoot-to-echo.yaml
+```
+
+#### Scenario 1: Connectivity between services in DC2
+
+- test if *netshoot* service (dc2) can reach *echo* service (dc2)
+```sh
+kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- curl -s echo.default.svc.cluster.local:5678
+hello-from-dc2
+```
+
+#### Scenario 2: Connectivity between services across datacenters
+
+- test if *client* service (dc1) can reach *echo* service (dc2)
+```sh
+kubectl --context dc1 -n default exec deploy/client -c client -- curl -sS http://127.0.0.1:1234
+hello-from-dc2
+```
+
+<!-- - apply the intention in the dc where *echo* service resides (dc2)
+```sh
+kubectl --context dc2 -n default apply -f intentions/dc2-allow-client-to-echo.yaml
+``` -->

@@ -30,7 +30,7 @@ Quick proof (from inside dc1)
 
 - primary cluster
 ```sh
-kubectl --context dc1 -n consul run curl --rm -it --restart=Never --image=curlimages/curl:8.6.0 -- sh 
+kubectl --context dc1 -n consul run curl --rm -it --restart=Never --image=curlimages/curl:8.6.0 -- sh
 # inside the pod
 # kubectl --context dc1 -n consul exec -it curl -- sh
 $ curl -k https://172.18.0.3:6443/readyz
@@ -111,24 +111,24 @@ kubectl --context dc2 -n default apply -f apps/netshoot-deploy2.yaml
 
 - run tests
 ```sh
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- curl -s echo.default.svc.cluster.local:5678
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- curl -s echo.default.svc.cluster.local:5678
 curl: (52) Empty reply from server
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- curl -s echo2.default.svc.cluster.local:5678
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- curl -s echo2.default.svc.cluster.local:5678
 hello-from-echo2
 
 # --- nslookup ---
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- nslookup echo.service.consul.
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- nslookup echo.service.consul.
 Server:         10.98.0.10
 Address:        10.98.0.10#53
 
 ** server cannot find echo.service.consul: NXDOMAIN
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- nslookup echo.service.consul. 127.0.0.1
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- nslookup echo.service.consul. 127.0.0.1
 ;; communications error to 127.0.0.1#53: connection refused
 ;; no servers could be reached
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- nslookup echo.service.consul. consul-dns.consul
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- nslookup echo.service.consul. consul-dns.consul
 Server:         consul-dns.consul
 Address:        10.98.183.130#53
 
@@ -137,10 +137,10 @@ Address: 10.242.0.9
 
 # --- dig ---
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- dig +short echo.service.consul
-# empty reply 
+kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- dig +short echo.service.consul
+# empty reply
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- dig +short @consul-dns.consul echo.service.consul
+kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- dig +short @consul-dns.consul echo.service.consul
 10.242.0.9
 ```
 
@@ -148,28 +148,28 @@ kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- dig +short 
 
 - run tests
 ```sh
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- curl -s echo.default.svc.cluster.local:5678
+kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- curl -s echo.default.svc.cluster.local:5678
 hello-from-dc2
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- curl -s echo2.default.svc.cluster.local:5678
+kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- curl -s echo2.default.svc.cluster.local:5678
 hello-from-echo2
 
 # --- nslookup ---
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- nslookup echo.service.consul. consul-dns.consul
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- nslookup echo.service.consul. consul-dns.consul
 ;; Got recursion not available from 127.0.0.1, trying next server
 Server:         10.98.0.10
 Address:        10.98.0.10#53
 
 ** server cannot find echo.service.consul: NXDOMAIN
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- nslookup echo.service.consul. 127.0.0.1
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- nslookup echo.service.consul. 127.0.0.1
 Server:         127.0.0.1
 Address:        127.0.0.1#53
 
 Name:   echo.service.consul
 Address: 10.242.0.9
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot2 -- nslookup echo.service.consul. consul-dns.consul
+kubectl --context dc2 -n default exec deploy/netshoot2 -c netshoot -- nslookup echo.service.consul. consul-dns.consul
 Server:         127.0.0.1
 Address:        127.0.0.1#53
 
@@ -178,7 +178,7 @@ Address: 10.242.0.9
 
 # --- dig ---
 
-kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- dig +short echo.service.consul
+kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- dig +short echo.service.consul
 10.242.0.9
 ```
 
@@ -189,7 +189,7 @@ kubectl --context dc2 -n default exec -c netshoot deploy/netshoot -- dig +short 
 dc2 deploy and dc1 serviceresolver
 ```sh
 kubectl --context dc2 -n default apply -f apps/dc2-echo.yaml
-kubectl --context dc1 -n default apply -f apps/dc1-echo-resolver.yaml
+kubectl --context dc1 -n default apply -f serviceresolver/dc1-echo-resolver.yaml
 ```
 
 client in dc1
@@ -199,7 +199,7 @@ kubectl --context dc1 -n default apply -f apps/dc1-client.yaml
 
 Test: curl dc2 service from pod in dc1
 ```sh
-kubectl --context dc1 -n default exec -it deploy/client -- curl -sS http://127.0.0.1:1234
+kubectl --context dc1 -n default exec deploy/client -c client -- curl -sS http://127.0.0.1:1234
 
 $ curl -sS http://127.0.0.1:1234
 hello-from-dc2
