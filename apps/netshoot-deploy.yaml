@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: netshoot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: netshoot
+  template:
+    metadata:
+      labels:
+        app: netshoot
+      annotations:
+        consul.hashicorp.com/connect-inject: "true"
+    spec:
+      containers:
+        - name: netshoot
+          # image: curlimages/curl
+          image: nicolaka/netshoot
+          command: ["sleep","3600"]
+          # securityContext:
+          #   runAsUser: 0
+          #   runAsGroup: 0
+          #   privileged: true
+          #   allowPrivilegeEscalation: true
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: netshoot
+spec:
+  selector:
+    app: netshoot
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
