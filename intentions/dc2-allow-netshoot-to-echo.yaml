@@ -1,0 +1,11 @@
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceIntentions
+metadata:
+  name: echo-single-dc
+  # namespace: default
+spec:
+  destination:
+    name: echo
+  sources:
+    - name: netshoot
+      action: allow
