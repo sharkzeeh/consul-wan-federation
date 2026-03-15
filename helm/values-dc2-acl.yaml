@@ -1,0 +1,66 @@
+global:
+  name: consul
+  image: hashicorp/consul:1.22.2
+  datacenter: dc2
+  tls:
+    enabled: true
+
+    # Here we're using the shared certificate authority from the primary
+    # datacenter that was exported via the federation secret.
+    caCert:
+      secretName: consul-federation
+      secretKey: caCert
+    caKey:
+      secretName: consul-federation
+      secretKey: caKey
+
+  acls:
+    manageSystemACLs: true
+    # Here we're importing the replication token that was
+    # exported from the primary via the federation secret.
+    replicationToken:
+      secretName: consul-federation
+      secretKey: replicationToken
+
+  # gossipEncryption:
+  #   secretName: consul-federation
+  #   secretKey: gossipEncryptionKey
+
+  federation:
+    enabled: true
+    # k8sAuthMethodHost: "https://127.0.0.1:59642" # must be set if ACLs are enabled
+    k8sAuthMethodHost: "https://dc2-control-plane:6443"
+    primaryDatacenter: dc1
+
+server:
+  replicas: 1
+  extraVolumes:
+    - type: secret
+      name: consul-federation
+      items:
+        - key: serverConfigJSON
+          path: config.json
+      load: true
+
+meshGateway:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 32001
+
+ui:
+  enabled: true
+  service:
+    type: NodePort
+
+connectInject:
+  enabled: true
+  # If true, the injector will inject the
+  # Connect sidecar into all pods by default. Otherwise, pods must specify the
+  # [injection annotation](https://developer.hashicorp.com/consul/docs/k8s/connect#consul-hashicorp-com-connect-inject)
+  # to opt-in to Connect injection. If this is true, pods can use the same annotation
+  # to explicitly opt-out of injection.
+  default: false
+
+  transparentProxy:
+    defaultEnabled: true

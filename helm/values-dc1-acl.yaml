@@ -1,0 +1,44 @@
+global:
+  name: consul
+  image: hashicorp/consul:1.22.2
+  datacenter: dc1
+  tls:
+    # TLS must be enabled for federation in Kubernetes.
+    enabled: true
+    enableAutoEncrypt: true
+  federation:
+    enabled: true
+    createFederationSecret: true
+  acls:
+    manageSystemACLs: true
+    # If ACLs are enabled, we must create a token for secondary
+    # datacenters to replicate ACLs.
+    createReplicationToken: true
+  # gossipEncryption:
+  #   autoGenerate: false
+
+server:
+  replicas: 1
+
+meshGateway:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 32001   # must match kind config containerPort
+
+ui:
+  enabled: true
+  service:
+    type: NodePort
+
+connectInject:
+  enabled: true
+  # If true, the injector will inject the
+  # Connect sidecar into all pods by default. Otherwise, pods must specify the
+  # [injection annotation](https://developer.hashicorp.com/consul/docs/k8s/connect#consul-hashicorp-com-connect-inject)
+  # to opt-in to Connect injection. If this is true, pods can use the same annotation
+  # to explicitly opt-out of injection.
+  default: false
+
+  transparentProxy:
+    defaultEnabled: true
