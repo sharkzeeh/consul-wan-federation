@@ -28,9 +28,6 @@ spec:
       annotations:
         consul.hashicorp.com/connect-inject: "true"
         consul.hashicorp.com/connect-service-upstreams: "echo:1234"
-        # Optional (helps make Consul service name deterministic)
-        # https://developer.hashicorp.com/consul/docs/register/service/k8s/service-sync#service-name
-        # consul.hashicorp.com/service-name: "client-consul-service"
     spec:
       containers:
       - name: client
