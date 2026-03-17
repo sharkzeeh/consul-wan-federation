@@ -186,21 +186,24 @@ kubectl --context dc2 -n default exec deploy/netshoot -c netshoot -- dig +short 
 
 ### Service Resolver and Upstream annotation
 
-dc2 deploy and dc1 serviceresolver
+- dc2: deploy "echo" application
 ```sh
 kubectl --context dc2 -n default apply -f apps/dc2-echo.yaml
-kubectl --context dc1 -n default apply -f serviceresolver/dc1-echo-resolver.yaml
 ```
 
-client in dc1
+- dc1: deploy *ServiceResolver* and "curl" client application
 ```sh
+kubectl --context dc1 -n default apply -f serviceresolver/dc1-echo-resolver.yaml
 kubectl --context dc1 -n default apply -f apps/dc1-client.yaml
 ```
 
-Test: curl dc2 service from pod in dc1
+- curl service in dc2 from a pod in dc1
 ```sh
 kubectl --context dc1 -n default exec deploy/client -c client -- curl -sS http://127.0.0.1:1234
+hello-from-dc2
 
+$ kubectl --context dc1 -n default exec deploy/client -c client -- sh
+# inside client pod
 $ curl -sS http://127.0.0.1:1234
 hello-from-dc2
 ```
