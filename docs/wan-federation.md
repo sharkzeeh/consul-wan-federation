@@ -28,7 +28,7 @@ kubectl --context dc1 -n consul get secret consul-federation
 # NAME                TYPE     DATA   AGE
 # consul-federation   Opaque   3      49m
 
-kubectl --context dc1 -n consul get secret consul-federation -o yaml > consul-federation.yaml
+kubectl --context dc1 -n consul get secret consul-federation -o yaml > consul-federation-secret.yaml
 ```
 
 - apply cluster federation secret and install consul in the second k8s cluster (secondary consul dc - ***dc2***)
@@ -37,7 +37,7 @@ kubectl config use-context dc2
 
 kubectl --context dc2 get ns consul || kubectl --context dc2 create ns consul
 
-kubectl --context dc2 -n consul apply -f consul-federation.yaml
+kubectl --context dc2 -n consul apply -f consul-federation-secret.yaml
 # secret/consul-federation created
 
 helm install consul hashicorp/consul --namespace consul --create-namespace -f helm/values-dc2.yaml --version "1.9.3"

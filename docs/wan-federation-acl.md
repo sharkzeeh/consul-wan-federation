@@ -29,7 +29,7 @@ kubectl --context dc1 -n consul get secret consul-federation
 # NAME                TYPE     DATA   AGE
 # consul-federation   Opaque   4      4d1h
 
-kubectl --context dc1 -n consul get secret consul-federation -o yaml > consul-federation.yaml
+kubectl --context dc1 -n consul get secret consul-federation -o yaml > consul-federation-secret.yaml
 ```
 
 - import updated federation secret into secondary (dc2); delete the previous one if it exists
@@ -41,7 +41,7 @@ kubectl --context dc2 get ns consul || kubectl --context dc2 create ns consul
 # delete if "consul-federation" secret exists
 # kubectl --context dc2 -n consul delete secret consul-federation
 
-kubectl --context dc2 -n consul apply -f consul-federation.yaml
+kubectl --context dc2 -n consul apply -f consul-federation-secret.yaml
 ```
 
 - install / upgrade secondary (dc2) with / to ACL mode
@@ -202,7 +202,7 @@ Denied
 
 - let *netshoot* service (dc2) and *client* service (dc1) reach *echo* service (dc2)
 ```sh
-kubectl --context dc2 -n default apply -f intentions/dc2-allow-netshoot-to-echo.yaml
+kubectl --context dc2 -n default apply -f intentions/dc2-allow-echo.yaml
 ```
 
 #### Scenario 1: Connectivity between services in DC2
