@@ -9,7 +9,7 @@ nodes:
 - role: control-plane
   image: kindest/node:v1.29.2
   extraPortMappings:
-  - containerPort: 32001    # will match mesh-gateway Service nodePort later
+  - containerPort: 32001    # will match consul-mesh-gateway Service NodePort later
     hostPort: 15002         # dc2 host-facing port
     listenAddress: "0.0.0.0"
     protocol: TCP
