@@ -25,6 +25,10 @@ meshGateway:
   service:
     type: NodePort
     nodePort: 32001   # must match kind config containerPort
+  wanAddress:
+    source: Static
+    static: "dc1-control-plane"
+    port: 32001
 
 ui:
   enabled: true

@@ -57,14 +57,30 @@ kubectl --context dc2 -n consul get secret consul-federation -o jsonpath='{.data
 
 This prints something like:
 ```json
-{"primary_datacenter":"dc1","primary_gateways":["dc1-control-plane:32001"]}
+{"primary_datacenter":"dc1","primary_gateways":["172.18.0.2:32001"]}
+```
+- **NOTE**: if you set `meshGateway.wanAddress.static`
+```yaml
+meshGateway:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 32001
+  wanAddress:
+    source: Static
+    static: "dc1-control-plane"
+    port: 32001
 ```
 
-If you still see:
+then secret's `serverConfigJSON` may contain multiple addresses
+```json
+{"primary_datacenter":"dc1","primary_gateways":["dc1-control-plane:32001","172.18.0.2:32001"]}
+```
+
+- if you still see
 ```
 "primary_gateways":["192.0.2.2:32001"]
 ```
-
 then dc2 is definitely configured wrong.
 
 This is the most important place to check.
