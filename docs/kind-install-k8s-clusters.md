@@ -3,8 +3,8 @@
 ## Create the clusters
 
 ```sh
-kind create cluster --name dc1 --config kind/kind-dc1.yaml
-kind create cluster --name dc2 --config kind/kind-dc2.yaml
+kind create cluster --name dc1 --config kind/dc1.yaml
+kind create cluster --name dc2 --config kind/dc2.yaml
 ```
 
 ## Get info about clusters
