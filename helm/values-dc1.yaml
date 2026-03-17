@@ -25,6 +25,11 @@ meshGateway:
   service:
     type: NodePort
     nodePort: 32001   # must match kind config containerPort
+  # consul-federation secret: serverConfigJSON.primary_gateways static address
+  wanAddress:
+    source: Static
+    static: "dc1-control-plane"
+    port: 32001
 
 ui:
   enabled: true
@@ -33,8 +38,8 @@ ui:
 
 connectInject:
   enabled: true
-  # If true, the injector will inject the Connect sidecar into all pods by default.
+  # If "true", the injector will inject the Connect sidecar into all pods by default.
   # Otherwise, pods must specify the injection annotation to opt-in to Connect injection
   # (https://developer.hashicorp.com/consul/docs/k8s/connect#consul-hashicorp-com-connect-inject)
-  # If this is true, pods can use the same annotation to explicitly opt-out of injection.
+  # If this is "true", pods can use the same annotation to explicitly opt-out of injection.
   default: false

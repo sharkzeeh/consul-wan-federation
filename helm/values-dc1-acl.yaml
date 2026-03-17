@@ -28,6 +28,7 @@ meshGateway:
   service:
     type: NodePort
     nodePort: 32001   # must match kind config containerPort
+  # consul-federation secret: serverConfigJSON.primary_gateways static address
   wanAddress:
     source: Static
     static: "dc1-control-plane"
