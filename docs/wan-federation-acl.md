@@ -190,6 +190,18 @@ consul config list -kind service-intentions
 - list intentions
 ```sh
 $ consul intention list
+
+# dc2
+$ kubectl --context dc2 -n consul exec -it statefulset/consul-server -- consul intention list
+ID  Source    Action  Destination  Precedence
+    client    allow   echo         9
+    netshoot  allow   echo         9
+
+# dc1
+$ kubectl --context dc1 -n consul exec -it statefulset/consul-server -- consul intention list
+ID  Source    Action  Destination  Precedence
+    client    allow   echo         9
+    netshoot  allow   echo         9
 ```
 
 - test if one service A can contact service B: if it says `Denied` then you need to create `ServiceIntentions` objects
