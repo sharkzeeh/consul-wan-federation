@@ -199,13 +199,19 @@ kubectl --context dc1 -n default apply -f apps/dc1-client.yaml
 
 - curl service in dc2 from a pod in dc1
 ```sh
-kubectl --context dc1 -n default exec deploy/client -c client -- curl -sS http://127.0.0.1:1234
+$ kubectl --context dc1 -n default exec deploy/client -c client -- curl -sS http://127.0.0.1:1234
 hello-from-dc2
 
 $ kubectl --context dc1 -n default exec deploy/client -c client -- sh
 # inside client pod
 $ curl -sS http://127.0.0.1:1234
 hello-from-dc2
+```
+
+### ACL-enabled example
+```sh
+kubectl --context dc2 -n default apply -f apps/dc2-echo-acl.yaml
+kubectl --context dc1 -n default apply -f apps/dc1-client-acl.yaml
 ```
 
 ## Looking virtual services
