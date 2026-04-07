@@ -1,0 +1,23 @@
+# ServiceDefaults: tell Envoy the L7 protocol so HTTP request metrics exist in Prometheus.
+# Those metrics are what the Consul UI Topology uses for RPS / ER / MED / P99 when available.
+#
+# Apply in the SAME namespace where the Consul Helm release / connect-injector runs (here: consul):
+#   kubectl apply -f apps/service-defaults.yaml -n consul
+# Repeat per cluster (dc1, dc2) — each datacenter has its own Consul catalog.
+#
+# Docs: https://developer.hashicorp.com/consul/docs/reference/config-entry/service-defaults#protocol
+# UI + Prometheus: https://developer.hashicorp.com/consul/docs/observe/telemetry/k8s#metrics-in-the-ui-topology-visualization
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceDefaults
+metadata:
+  name: client
+spec:
+  protocol: http
+---
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ServiceDefaults
+metadata:
+  name: echo
+spec:
+  protocol: http

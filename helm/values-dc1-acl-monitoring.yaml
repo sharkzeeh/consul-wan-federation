@@ -1,0 +1,72 @@
+global:
+  name: consul
+  image: hashicorp/consul:1.22.2
+  datacenter: dc1
+  tls:
+    # TLS must be enabled for federation in Kubernetes.
+    enabled: true
+    enableAutoEncrypt: true
+  federation:
+    enabled: true
+    createFederationSecret: true
+  acls:
+    manageSystemACLs: true
+    # If ACLs are enabled, we must create a token for secondary
+    # datacenters to replicate ACLs.
+    createReplicationToken: true
+
+  # Gossip encryption secures the protocol Consul uses to quickly
+  # discover new nodes and detect failure.
+  gossipEncryption:
+    autoGenerate: true
+
+  metrics:
+    enabled: true
+    enableGatewayMetrics: true
+    # Consul agent metrics are not supported with TLS enabled.
+    enableAgentMetrics: false
+
+server:
+  replicas: 1
+
+meshGateway:
+  enabled: true
+  service:
+    type: NodePort
+    nodePort: 32001   # must match kind config containerPort
+  # consul-federation secret: serverConfigJSON.primary_gateways static address
+  wanAddress:
+    source: Static
+    static: "dc1-control-plane"
+    port: 32001
+
+ui:
+  enabled: true
+  service:
+    type: NodePort
+  metrics:
+    enabled: true
+    provider: "prometheus"
+    baseURL: http://prometheus-server
+
+connectInject:
+  enabled: true
+  # If "true", the injector will inject the Connect sidecar into all pods by default.
+  # Otherwise, pods must specify the injection annotation to opt-in to Connect injection
+  # (https://developer.hashicorp.com/consul/docs/k8s/connect#consul-hashicorp-com-connect-inject)
+  # If this is "true", pods can use the same annotation to explicitly opt-out of injection.
+  default: false
+
+  transparentProxy:
+    defaultEnabled: true
+
+  metrics:
+    defaultEnabled: true
+    defaultEnableMerging: false # true
+    defaultPrometheusScrapePort: 20200
+    defaultPrometheusScrapePath: "/metrics"
+    # defaultMergedMetricsPort: 20100
+
+# Demo-only Prometheus install bundled with the Consul Helm chart.
+prometheus:
+  enabled: true

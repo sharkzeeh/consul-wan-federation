@@ -1,0 +1,16 @@
+# ProxyDefaults with mesh gateway mode + Envoy Prometheus bind for gateway/sidecar
+# scrape alignment (Helm uses prometheus.io/port 20200). Apply per datacenter after
+# Consul CRDs are available (same namespace you use for other Consul CRDs, often consul).
+#
+# Reference: https://developer.hashicorp.com/consul/docs/reference/config-entry/proxy-defaults#prometheus
+# Dataplane telemetry: https://developer.hashicorp.com/consul/docs/monitor/telemetry/dataplane
+apiVersion: consul.hashicorp.com/v1alpha1
+kind: ProxyDefaults
+metadata:
+  name: global
+  # namespace: consul
+spec:
+  meshGateway:
+    mode: 'local'
+  config:
+    envoy_prometheus_bind_addr: '0.0.0.0:20200'
