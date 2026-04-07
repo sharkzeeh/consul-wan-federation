@@ -16,14 +16,25 @@ CURRENT  NAME   CLUSTER   AUTHINFO  NAMESPACE
          dc2    dc2       dc2
 ```
 
-- install / upgrade primary (dc1) with / to ACL mode
+- install / upgrade primary Consul DC (dc1) with / to ACL mode
 ```sh
 kubectl config use-context dc1
 
 helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl.yaml
 ```
 
-- export consul federation secret from the primary consul cluster (dc1); mind the new field `replicationToken`
+- create "global" `ProxyDefaults` object in primary Consul DC (dc1)
+```sh
+# primary cluster only
+kubectl -n consul apply -f proxydefaults/proxydefaults.yaml
+
+# check SYNCED=True
+kubectl -n consul get proxydefaults global
+NAME     SYNCED   LAST SYNCED   AGE
+global   True     22m           40d
+```
+
+- export consul federation secret from the primary Consul DC (dc1); mind the new field `replicationToken`
 ```sh
 kubectl --context dc1 -n consul get secret consul-federation
 # NAME                TYPE     DATA   AGE
@@ -47,6 +58,30 @@ kubectl --context dc2 -n consul apply -f consul-federation-secret.yaml
 - install / upgrade secondary (dc2) with / to ACL mode
 ```sh
 helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl.yaml --version "1.9.3"
+```
+
+- check ProxyDefaults object in consul-server (dc2)
+```sh
+kubectl --context dc2 -n consul exec -c consul statefulset/consul-server -- consul config read -kind proxy-defaults -name global
+```
+
+```json
+{
+    "Kind": "proxy-defaults",
+    "Name": "global",
+    "TransparentProxy": {},
+    "MeshGateway": {
+        "Mode": "local"
+    },
+    "Expose": {},
+    "AccessLogs": {},
+    "Meta": {
+        "consul.hashicorp.com/source-datacenter": "dc1",
+        "external-source": "kubernetes"
+    },
+    "CreateIndex": 1257,
+    "ModifyIndex": 22538
+}
 ```
 
 ## Verifying Federation
@@ -237,3 +272,31 @@ hello-from-dc2
 ```sh
 kubectl --context dc2 -n default apply -f intentions/dc2-allow-client-to-echo.yaml
 ``` -->
+
+---
+
+## Monitoring
+
+Links:
+- https://developer.hashicorp.com/consul/docs/observe/telemetry/k8s#metrics-in-the-ui-topology-visualization
+- https://developer.hashicorp.com/consul/docs/observe/telemetry/vm
+
+### Built-in demo prometheus
+
+- dc1
+```sh
+kubectl config use-context dc1
+
+helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl-monitoring.yaml --version "1.9.3"
+```
+
+- dc2
+```sh
+kubectl config use-context dc2
+helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl-monitoring.yaml --version "1.9.3"
+```
+
+- access prometheus server
+```sh
+kubectl -n consul port-forward svc/prometheus-server 9090:80
+```

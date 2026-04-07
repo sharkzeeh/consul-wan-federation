@@ -146,13 +146,18 @@ save secret
 kubectl get secret consul-federation --namespace consul --output yaml > consul-federation-secret.yaml
 ```
 
+create "global" `ProxyDefaults` object
 ```sh
 # primary cluster only
 kubectl -n consul apply -f proxydefaults/proxydefaults.yaml
+
+# check SYNCED=True
+kubectl -n consul get proxydefaults global
+NAME     SYNCED   LAST SYNCED   AGE
+global   True     22m           40d
 ```
 
 - second cluster
-
 k8s api url?
 ```sh
 $ export CLUSTER=$(kubectl config view -o jsonpath="{.contexts[?(@.name == \"$(kubectl config current-context)\")].context.cluster}")
@@ -160,12 +165,34 @@ $ kubectl config view -o jsonpath="{.clusters[?(@.name == \"$CLUSTER\")].cluster
 https://<some-url>
 ```
 
-
+```sh
 kubectl config use-context dc2
 kubectl apply --filename consul-federation-secret.yaml
 
 helm install consul hashicorp/consul --namespace consul --create-namespace -f helm/values-dc2.yaml --version "1.9.3"
 
+# check ProxyDefaults object
+kubectl --context dc2 -n consul exec -c consul statefulset/consul-server -- consul config read -kind proxy-defaults -name global
+```
+
+```json
+{
+    "Kind": "proxy-defaults",
+    "Name": "global",
+    "TransparentProxy": {},
+    "MeshGateway": {
+        "Mode": "local"
+    },
+    "Expose": {},
+    "AccessLogs": {},
+    "Meta": {
+        "consul.hashicorp.com/source-datacenter": "dc1",
+        "external-source": "kubernetes"
+    },
+    "CreateIndex": 1257,
+    "ModifyIndex": 22538
+}
+```
 
 #### Verifying Federation
 
