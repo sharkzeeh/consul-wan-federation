@@ -1,2 +1,4 @@
 *.log
 consul-federation*.yaml
+*.json
+trash/
