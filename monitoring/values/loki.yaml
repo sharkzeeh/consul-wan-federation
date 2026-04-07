@@ -1,0 +1,59 @@
+# grafana/loki — SingleBinary, filesystem storage (no object store / MinIO).
+# Replaces deprecated grafana/loki-stack for this tutorial-style install.
+
+deploymentMode: SingleBinary
+
+singleBinary:
+  replicas: 1
+  podAnnotations:
+    consul.hashicorp.com/connect-inject: "false"
+  persistence:
+    enabled: false
+  extraVolumes:
+    - name: storage
+      emptyDir: {}
+  extraVolumeMounts:
+    - name: storage
+      mountPath: /var/loki
+
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  schemaConfig:
+    configs:
+      - from: "2024-04-01"
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+  storage:
+    type: filesystem
+  podAnnotations:
+    consul.hashicorp.com/connect-inject: "false"
+
+gateway:
+  enabled: false
+
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+# Lighter footprint (no memcached sidecars; closer to old loki-stack).
+lokiCanary:
+  enabled: false
+chunksCache:
+  enabled: false
+resultsCache:
+  enabled: false
+test:
+  enabled: false
+
+sidecar:
+  rules:
+    enabled: false

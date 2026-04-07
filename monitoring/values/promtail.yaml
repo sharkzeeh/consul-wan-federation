@@ -1,0 +1,7 @@
+# grafana/promtail — ships logs to the Loki release (install name must be "loki").
+podAnnotations:
+  consul.hashicorp.com/connect-inject: "false"
+
+config:
+  clients:
+    - url: http://loki.{{ .Release.Namespace }}.svc.cluster.local:3100/loki/api/v1/push

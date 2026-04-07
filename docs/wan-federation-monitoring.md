@@ -12,7 +12,7 @@ Links:
 ```sh
 kubectl config use-context dc1
 
-helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl-monitoring.yaml --version "1.9.3"
+helm --kube-context dc1 upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl-monitoring.yaml --version "1.9.3"
 ```
 
 **NOTE**: important to use updated `ProxyDefaults` object for dc1
@@ -35,8 +35,9 @@ kubectl -n consul apply -f proxydefaults/proxydefaults-monitoring.yaml
 
 - dc2
 ```sh
-kubectl config use-context dc2
-helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl-monitoring.yaml --version "1.9.3"
+# kubectl config use-context dc2
+
+helm --kube-context dc2 upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl-monitoring.yaml --version "1.9.3"
 ```
 
 - access prometheus server
@@ -103,10 +104,10 @@ To see L4-style metrics (bps, CR / RX / TX / NR) omit *ServiceDefaults* for a gi
 ```sh
 kubectl config use-context dc1
 
-./install-observability-suite-v2.sh monitoring
+./monitoring/install-observability-suite-v2.sh monitoring
 
 # make sure to use  previous monitoring
-helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl-monitoring-custom.yaml --version "1.9.3"
+helm --kube-context dc1 upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl-monitoring-custom.yaml --version "1.9.3"
 
 kubectl -n consul apply -f proxydefaults/proxydefaults-monitoring.yaml
 ```
@@ -115,7 +116,7 @@ kubectl -n consul apply -f proxydefaults/proxydefaults-monitoring.yaml
 ```sh
 kubectl config use-context dc2
 
-./install-observability-suite-v2.sh monitoring
+./monitoring/install-observability-suite-v2.sh monitoring
 
-helm upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl-monitoring-custom.yaml --version "1.9.3"
+helm --kube-context dc2 upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl-monitoring-custom.yaml --version "1.9.3"
 ```
