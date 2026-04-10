@@ -104,7 +104,9 @@ To see L4-style metrics (bps, CR / RX / TX / NR) omit *ServiceDefaults* for a gi
 ```sh
 kubectl config use-context dc1
 
-./monitoring/install-observability-suite-v2.sh monitoring
+cd monitoring
+./install-observability-suite-v2.sh monitoring
+cd -
 
 # make sure to use  previous monitoring
 helm --kube-context dc1 upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc1-acl-monitoring-custom.yaml --version "1.9.3"
@@ -116,7 +118,9 @@ kubectl -n consul apply -f proxydefaults/proxydefaults-monitoring.yaml
 ```sh
 kubectl config use-context dc2
 
-./monitoring/install-observability-suite-v2.sh monitoring
+cd monitoring
+./install-observability-suite-v2.sh monitoring
+cd -
 
 helm --kube-context dc2 upgrade --install consul hashicorp/consul -n consul --create-namespace -f helm/values-dc2-acl-monitoring-custom.yaml --version "1.9.3"
 ```
